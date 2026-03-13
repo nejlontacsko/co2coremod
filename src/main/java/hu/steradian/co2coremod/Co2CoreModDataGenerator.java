@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class Co2CoreModDataGenerator implements DataGeneratorEntrypoint {
 	@Override
-	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
+	public void onInitializeDataGenerator(@NotNull FabricDataGenerator fabricDataGenerator) {
 		//FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
 	}
 
