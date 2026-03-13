@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "co2coremod",
+	"version": "${version}",
+	"name": "CO2 Simulation Core",
+	"description": "This is spin-off Mod inspired by SteamCraft Core mod. Adds core functionality for CO2 emission and gas diffusion.",
+	"authors": [
+		"nejlontacsko"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/nejlontacsko/co2coremod"
+	},
+	"license": "Apache",
+	"icon": "assets/co2coremod/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"hu.steradian.co2coremod.Co2CoreMod"
+		],
+		"client": [
+			"hu.steradian.co2coremod.Co2CoreModClient"
+		],
+		"fabric-datagen": [
+			"hu.steradian.co2coremod.Co2CoreModDataGenerator"
+		]
+	},
+	"mixins": [
+		"co2coremod.mixins.json"
+	],
+	"depends": {
+      "fabricloader": ">=0.18.4",
+      "minecraft": "~1.21.11",
+      "java": ">=21",
+      "fabric-api": "*"
+    },
+	"suggests": {
+		"another-mod": "*"
+	}
+}
