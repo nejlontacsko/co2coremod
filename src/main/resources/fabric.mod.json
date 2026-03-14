@@ -36,6 +36,7 @@
 	"mixins": [
 		"co2coremod.mixins.json"
 	],
+    "accessWidener": "co2coremod.accesswidener",
 	"depends": {
       "fabricloader": ">=0.18.4",
       "minecraft": "~1.21.11",

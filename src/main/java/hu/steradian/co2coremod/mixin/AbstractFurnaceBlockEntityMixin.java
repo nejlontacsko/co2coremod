@@ -1,6 +1,6 @@
 package hu.steradian.co2coremod.mixin;
 
-import hu.steradian.co2coremod.Co2CoreMod;
+import hu.steradian.co2coremod.smog.SmogManager;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -46,7 +46,7 @@ public abstract class AbstractFurnaceBlockEntityMixin {
         ChunkPos pos = new ChunkPos(blockPos);
         LevelChunk chunk = serverLevel.getChunk(pos.x, pos.z);
 
-        //CO2Manager.add(chunk, amount);
-        Co2CoreMod.LOGGER.info("Emit " + amount + " ppm on Chunk " + chunk.getPos());
+        SmogManager.add(chunk, amount);
+        //Co2CoreMod.LOGGER.info("Emit " + amount + " ppm on Chunk " + chunk.getPos());
     }
 }
