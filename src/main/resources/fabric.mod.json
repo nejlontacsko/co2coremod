@@ -23,8 +23,16 @@
 		],
 		"fabric-datagen": [
 			"hu.steradian.co2coremod.Co2CoreModDataGenerator"
-		]
+		],
+        "cardinal-components-chunk": [
+            "hu.steradian.co2coremod.components.ModComponents"
+        ]
 	},
+    "custom": {
+        "cardinal-components": [
+          "co2coremod:chunk_data"
+        ]
+    },
 	"mixins": [
 		"co2coremod.mixins.json"
 	],
