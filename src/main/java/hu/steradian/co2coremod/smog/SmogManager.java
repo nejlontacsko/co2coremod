@@ -15,10 +15,11 @@ public class SmogManager {
         IChunkSmogData data = ModComponents.CHUNK_DATA.get(chunk);
         data.setSmogAmount(amount);
         sync(chunk, data);
-
     }
 
     public static void add(LevelChunk chunk, int amount) {
+        if (amount == 0) return;
+
         IChunkSmogData data = ModComponents.CHUNK_DATA.get(chunk);
         data.setSmogAmount(data.getSmogAmount() + amount);
         sync(chunk, data);
@@ -27,5 +28,11 @@ public class SmogManager {
     private static void sync(LevelChunk chunk, IChunkSmogData data) {
         if (chunk.getLevel() instanceof ServerLevel)
             NetworkHandler.syncChunkToTracking(chunk, data.getSmogAmount());
+    }
+
+    public static int calcChunkAmountChange(LevelChunk chunk) {
+        int delta = SmogCalculator.calculateSmogChange(chunk);
+        add(chunk, delta);
+        return delta;
     }
 }

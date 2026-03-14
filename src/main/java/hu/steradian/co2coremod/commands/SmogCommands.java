@@ -61,16 +61,6 @@ public class SmogCommands {
                                     return 1;
                                 })
                             ))
-
-                        .then(Commands.literal("regenall")
-                            .executes(ctx -> {
-                                int count = 0; //SmogManager.regenerateAllLoaded();
-                                ctx.getSource().sendSuccess(
-                                    () -> Component.literal("Re-calculated CO₂ for " + count + " loaded chunks"),
-                                    true
-                                );
-                                return count;
-                            }))
         ));
     }
 

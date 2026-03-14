@@ -9,7 +9,4 @@ public interface IChunkSmogData extends Component {
     void setSmogAmount(int level);
 
     SmogLevel getSmogLevel();
-
-    boolean isInitialized();
-    void setInitialized(boolean initialized);
 }
