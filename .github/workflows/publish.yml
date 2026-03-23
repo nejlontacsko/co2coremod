@@ -30,7 +30,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build and publish local Maven repo
-        run: ./gradlew clean publish
+        run: bash ./gradlew clean publish --stacktrace
 
       - name: Azure login
         uses: azure/login@v2
