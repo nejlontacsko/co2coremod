@@ -1,9 +1,11 @@
 plugins {
+    id 'java-library'
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
-version = project.mod_version
+version = System.getenv("RELEASE_VERSION") ?: project.mod_version
+
 group = project.maven_group
 
 base {
@@ -84,5 +86,9 @@ publishing {
 		// Notice: This block does NOT have the same function as the block in the top level.
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
+        maven {
+            name = "localBuildRepo"
+            url = uri(layout.buildDirectory.dir("repo"))
+        }
 	}
 }
