@@ -3,7 +3,7 @@
 	"id": "co2coremod",
 	"version": "${version}",
 	"name": "CO2 Simulation Core",
-	"description": "This is spin-off Mod inspired by SteamCraft Core mod. Adds core functionality for CO2 emission and gas diffusion.",
+	"description": "This is a spin-off Mod inspired by SteamCraft Core mod. Adds core functionality for CO2 emission and gas diffusion.",
 	"authors": [
 		"nejlontacsko"
 	],
@@ -41,7 +41,8 @@
       "fabricloader": ">=0.18.4",
       "minecraft": "~1.21.11",
       "java": ">=21",
-      "fabric-api": "*"
+      "fabric-api": "*",
+		"cardinal-components-chunk": ">=7.3.0"
     },
 	"suggests": {
 		"another-mod": "*"
