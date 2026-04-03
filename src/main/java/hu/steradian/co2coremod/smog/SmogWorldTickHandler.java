@@ -54,9 +54,11 @@ public final class SmogWorldTickHandler {
                 if (chunk == null)
                     continue;
 
-                SmogManager.calcChunkAmountChange(chunk);
+                SmogHandler.calcChunkAmountChange(chunk);
                 PROCESSING_QUEUE.offer(pos);
             }
+
+            SmogHandler.tick();
         });
     }
 }

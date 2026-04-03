@@ -3,7 +3,7 @@ package hu.steradian.co2coremod.commands;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import hu.steradian.co2coremod.smog.SmogManager;
+import hu.steradian.co2coremod.smog.SmogHandler;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
@@ -24,7 +24,7 @@ public class SmogCommands {
                         .then(Commands.literal("show")
                             .executes(ctx -> {
                                 LevelChunk chunk = commandChunk(ctx.getSource());
-                                int amount = SmogManager.getChunkAmount(chunk);
+                                int amount = SmogHandler.getChunkAmount(chunk);
                                 ctx.getSource().sendSuccess(
                                     () -> Component.literal("Chunk CO₂ = " + amount),
                                     false
@@ -53,7 +53,7 @@ public class SmogCommands {
                                 .executes(ctx -> {
                                     int amount = IntegerArgumentType.getInteger(ctx, "amount");
                                     LevelChunk chunk = commandChunk(ctx.getSource());
-                                    SmogManager.setChunkAmount(chunk, amount);
+                                    SmogHandler.setChunkAmount(chunk, amount);
                                     ctx.getSource().sendSuccess(
                                         () -> Component.literal("Set CO₂ to " + amount),
                                         true
@@ -66,7 +66,7 @@ public class SmogCommands {
 
     private static int modify(CommandSourceStack source, int amount) throws CommandSyntaxException {
         LevelChunk chunk = commandChunk(source);
-        SmogManager.add(chunk, amount);
+        SmogHandler.add(chunk, amount);
         source.sendSuccess(
             () -> Component.literal((amount > 0 ? "Increased" : "Decreased") + " CO₂ by " + Math.abs(amount)),
             true

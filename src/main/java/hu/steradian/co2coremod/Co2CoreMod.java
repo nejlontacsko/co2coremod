@@ -3,7 +3,7 @@ package hu.steradian.co2coremod;
 import hu.steradian.co2coremod.commands.SmogCommands;
 import hu.steradian.co2coremod.network.ChunkSmogSyncS2CPayload;
 import hu.steradian.co2coremod.network.NetworkHandler;
-import hu.steradian.co2coremod.smog.SmogManager;
+import hu.steradian.co2coremod.smog.SmogHandler;
 import hu.steradian.co2coremod.smog.SmogWorldTickHandler;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -37,7 +37,7 @@ public class Co2CoreMod implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             ServerPlayer player = handler.player;
             LevelChunk chunk = player.level().getChunk(player.chunkPosition().x, player.chunkPosition().z);
-            int smog = SmogManager.getChunkAmount(chunk);
+            int smog = SmogHandler.getChunkAmount(chunk);
             NetworkHandler.syncChunkToPlayer(player, chunk, smog);
         });
 
