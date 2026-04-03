@@ -1,6 +1,6 @@
 package hu.steradian.co2coremod.api;
 
-import hu.steradian.co2coremod.smog.SmogManager;
+import hu.steradian.co2coremod.smog.SmogHandler;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -19,14 +19,14 @@ public interface ISmogNode {
     }
 
     default Result emitSmog(LevelChunk chunk, int amount) {
-        int prev = SmogManager.getChunkAmount(chunk);
-        SmogManager.add(chunk, amount);
-        return new Result(prev, SmogManager.getChunkAmount(chunk), amount);
+        int prev = SmogHandler.getChunkAmount(chunk);
+        SmogHandler.add(chunk, amount);
+        return new Result(prev, SmogHandler.getChunkAmount(chunk), amount);
     }
 
     default Result absorbSmog(LevelChunk chunk, int amount) {
-        int prev = SmogManager.getChunkAmount(chunk);
-        SmogManager.add(chunk, -amount);
-        return new Result(prev, SmogManager.getChunkAmount(chunk), amount);
+        int prev = SmogHandler.getChunkAmount(chunk);
+        SmogHandler.add(chunk, -amount);
+        return new Result(prev, SmogHandler.getChunkAmount(chunk), amount);
     }
 }
