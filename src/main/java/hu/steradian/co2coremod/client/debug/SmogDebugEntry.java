@@ -2,6 +2,7 @@ package hu.steradian.co2coremod.client.debug;
 
 import hu.steradian.co2coremod.Co2CoreMod;
 import hu.steradian.co2coremod.client.ClientSmogData;
+import hu.steradian.co2coremod.components.ModComponents;
 import hu.steradian.co2coremod.smog.SmogLevel;
 
 import net.minecraft.client.Minecraft;
@@ -25,12 +26,13 @@ public class SmogDebugEntry implements DebugScreenEntry {
                         @Nullable LevelChunk clientChunk,
                         @Nullable LevelChunk serverChunk) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player == null || mc.level == null) {
+        if (mc.player == null || mc.level == null)
             return;
-        }
 
         ChunkPos playerChunkPos = new ChunkPos(mc.player.blockPosition());
+        ClientSmogData.tick();
         int playerSmog = ClientSmogData.getSmogAmount(playerChunkPos);
+        //int playerSmog = ModComponents.CHUNK_DATA.get(new LevelChunk(level, playerChunkPos)).getSmogAmount();
 
         displayer.addToGroup(Co2CoreMod.getId("smog"), "[Smog]");
         displayer.addToGroup(Co2CoreMod.getId("smog"),

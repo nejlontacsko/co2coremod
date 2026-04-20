@@ -33,14 +33,6 @@ public class Co2CoreMod implements ModInitializer {
         );
 
         SmogCommands.register();
-
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            ServerPlayer player = handler.player;
-            LevelChunk chunk = player.level().getChunk(player.chunkPosition().x, player.chunkPosition().z);
-            int smog = SmogHandler.getChunkAmount(chunk);
-            NetworkHandler.syncChunkToPlayer(player, chunk, smog);
-        });
-
         SmogWorldTickHandler.register();
 	}
 }

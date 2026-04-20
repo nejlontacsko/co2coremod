@@ -1,5 +1,6 @@
 package hu.steradian.co2coremod.network;
 
+import hu.steradian.co2coremod.smog.SmogHandler;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
@@ -30,5 +31,18 @@ public final class NetworkHandler {
         ServerPlayNetworking.send(player,
                 new ChunkSmogSyncS2CPayload(chunk.getPos().x, chunk.getPos().z, smog)
         );
+    }
+
+    public static void syncAroundPlayer(ServerPlayer player, int radius) {
+        int centerX = player.chunkPosition().x;
+        int centerZ = player.chunkPosition().z;
+
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                LevelChunk chunk = player.level().getChunk(centerX + dx, centerZ + dz);
+                int smog = SmogHandler.getChunkAmount(chunk);
+                syncChunkToPlayer(player, chunk, smog);
+            }
+        }
     }
 }
