@@ -53,7 +53,8 @@ public final class SmogWorldTickHandler {
                 ChunkPos previous = lastPlayerChunks.get(player.getUUID());
 
                 if (previous == null || !previous.equals(current)) {
-                    NetworkHandler.syncAroundPlayer(player, 6);
+                    if (previous == null || current.getChessboardDistance(previous) > 1)
+                        NetworkHandler.syncAroundPlayer(player, 2);
                     lastPlayerChunks.put(player.getUUID(), current);
                 }
             }

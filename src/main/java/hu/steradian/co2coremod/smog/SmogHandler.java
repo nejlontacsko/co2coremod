@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class SmogHandler {
-    private static final int SYNC_TICK_INTERVAL = 10;
+    private static final int SYNC_TICK_INTERVAL = 5;
     private static int tickCounter = 0;
     private static final Set<LevelChunk> dirtyChunks = new HashSet<>();
 
@@ -31,14 +31,12 @@ public class SmogHandler {
         if (tickCounter >= SYNC_TICK_INTERVAL) {
             tickCounter = 0;
 
-            Set<LevelChunk> chunksToSync = new HashSet<>(dirtyChunks);
-            dirtyChunks.clear();
+            //Set<LevelChunk> chunksToSync = new HashSet<>(dirtyChunks);
 
-            for (LevelChunk chunk : chunksToSync) {
+            for (LevelChunk chunk : dirtyChunks) {
                 IChunkSmogData data = ModComponents.CHUNK_DATA.get(chunk);
                 syncDirtyChunk(chunk, data);
             }
-
             dirtyChunks.clear();
         }
     }
