@@ -5,7 +5,9 @@
   "mixins": [
     "AbstractFurnaceBlockEntityMixin",
     "CampfireBlockEntityMixin",
-    "ExampleMixin"
+    "CreeperMixin",
+    "LightningBoltMixin",
+    "PrimedTntMixin"
   ],
   "injectors": {
     "defaultRequire": 1

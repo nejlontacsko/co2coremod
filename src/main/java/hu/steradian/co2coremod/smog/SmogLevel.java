@@ -12,11 +12,11 @@ public enum SmogLevel {
     public static final int MAX = 500000;
 
     public static SmogLevel of(int i) {
-        if (i < 100)
+        if (i < 5000)
             return CLEAN;
-        else if (i < 1000)
+        else if (i < 100000)
             return LOW;
-        else if (i < 2500)
+        else if (i < 250000)
             return MEDIUM;
         return HIGH;
     }

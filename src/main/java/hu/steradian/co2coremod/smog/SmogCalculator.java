@@ -9,10 +9,10 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 public final class SmogCalculator {
-    private static final int LEAVES_ABSORPTION = 1;
-    private static final int LAVA_EMISSION = 3;
-    private static final int CAMPFIRE_EMISSION = 4;
-    private static final int FIRE_EMISSION = 5;
+    private static final int LEAVES_ABSORPTION = 2;
+    private static final int LAVA_EMISSION = 1;
+    private static final int CAMPFIRE_EMISSION = 3;
+    private static final int FIRE_EMISSION = 4;
 
     private SmogCalculator() {}
 
