@@ -1,3 +1,4 @@
 {
-  "co2core.title": "CO2 Simulation Core"
+  "co2core.title": "CO2 Simulation Core",
+  "death.attack.co2_poisoning": "%1$s died from CO₂ poisoning"
 }

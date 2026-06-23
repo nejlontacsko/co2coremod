@@ -3,14 +3,24 @@ package hu.steradian.co2coremod.smog;
 import hu.steradian.co2coremod.Co2CoreMod;
 
 import hu.steradian.co2coremod.network.NetworkHandler;
+import hu.steradian.co2coremod.components.ModComponents;
+import hu.steradian.co2coremod.util.ModTags;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseTorchBlock;
@@ -44,7 +54,14 @@ public final class SmogWorldTickHandler {
 
     private static final int TORCH_EMISSION = 1;
     private static final int ENTITY_EMISSION = 10;
+    private static final int CO2_DAMAGE_THRESHOLD = 200_000;
+    private static final int CO2_DAMAGE_INTERVAL_TICKS = 40;
     private static final int RANDOM_EMISSION_INTERVAL_TICKS = 20;
+    private static final int CO2_POISON_DURATION_TICKS = 100;
+    private static final ResourceKey<DamageType> CO2_POISONING_DAMAGE = ResourceKey.create(
+            Registries.DAMAGE_TYPE,
+            Co2CoreMod.getId("co2_poisoning")
+    );
     private static final int TORCH_SAMPLES_PER_CHUNK = 8;
     private static final int TORCH_CHUNKS_PER_INTERVAL = 32;
     private static final int TORCH_SCAN_RADIUS_Y = 8;
@@ -113,6 +130,44 @@ public final class SmogWorldTickHandler {
         return true;
     }
 
+    private static boolean hasCo2Protection(ServerPlayer player) {
+        ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
+        return helmet.is(ModTags.Items.CO2_PROTECTION_HELMETS);
+    }
+
+    private static void applyPlayerCo2Effects(ServerLevel world, ServerPlayer player) {
+        if (world.dimension() != Level.OVERWORLD)
+            return;
+
+        if (player.gameMode.getGameModeForPlayer() != GameType.SURVIVAL)
+            return;
+
+        if (player.tickCount % CO2_DAMAGE_INTERVAL_TICKS != 0)
+            return;
+
+        LevelChunk chunk = world.getChunkSource().getChunkNow(player.chunkPosition().x, player.chunkPosition().z);
+        if (chunk == null)
+            return;
+
+        int smogAmount = ModComponents.CHUNK_DATA.get(chunk).getSmogAmount();
+        if (smogAmount < CO2_DAMAGE_THRESHOLD)
+            return;
+
+        if (hasCo2Protection(player))
+            return;
+
+        player.addEffect(new MobEffectInstance(
+                MobEffects.POISON,
+                CO2_POISON_DURATION_TICKS,
+                0,
+                true,
+                true
+        ));
+
+        if (player.getHealth() <= 1.0F)
+            player.hurt(world.damageSources().source(CO2_POISONING_DAMAGE), 1.0F);
+    }
+
     public static void register() {
         ServerChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
             if (world.dimension() != Level.OVERWORLD)
@@ -150,6 +205,7 @@ public final class SmogWorldTickHandler {
 
             for (ServerPlayer player : world.players()) {
                 ChunkPos current = player.chunkPosition();
+                applyPlayerCo2Effects(world, player);
                 ChunkPos previous = lastPlayerChunks.get(player.getUUID());
 
                 if (previous == null || !previous.equals(current)) {
