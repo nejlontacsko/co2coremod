@@ -12,9 +12,9 @@ public class AbsorptionValues {
 
     static {
         // Standard absorption value
-        int standardAbsorption = 1;
+        int standardAbsorption = 2;
         // Higher absorption for saplings
-        int saplingAbsorption = 5;
+        int saplingAbsorption = 6;
 
         // Grasses and Ferns (TallGrassBlock covers Grass and Tall Grass)
         MAP.put(Blocks.SHORT_GRASS, standardAbsorption);

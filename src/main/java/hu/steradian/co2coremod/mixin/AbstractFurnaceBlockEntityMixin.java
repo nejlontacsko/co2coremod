@@ -24,6 +24,8 @@ public abstract class AbstractFurnaceBlockEntityMixin {
     private static final int BURN_TICK_PPM = 1;
     @Unique
     private static final int ADVANCED_MULTIPLIER = 2;
+    @Unique
+    private static final boolean ALLOW_EMISSIONS_BELOW_Y50 = false;
 
     @Inject(method = "serverTick", at = @At("TAIL"))
     private static void onServerTick(
@@ -32,6 +34,9 @@ public abstract class AbstractFurnaceBlockEntityMixin {
             BlockState blockState,
             AbstractFurnaceBlockEntity furnace,
             CallbackInfo ci) {
+
+        if (!ALLOW_EMISSIONS_BELOW_Y50 && blockPos.getY() < 50)
+            return;
 
         int amount = BURN_TICK_PPM;
         if (furnace instanceof BlastFurnaceBlockEntity || furnace instanceof SmokerBlockEntity)

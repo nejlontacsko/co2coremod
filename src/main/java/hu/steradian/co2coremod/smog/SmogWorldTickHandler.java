@@ -36,7 +36,10 @@ public final class SmogWorldTickHandler {
     private static final long SLOW_SECTION_LOG_THRESHOLD_NS = 5_000_000L;
 
     private static int tickCounter = 0;
+    private static int rainWashTickCounter = 0;
     private static final int PROCESS_INTERVAL_TICKS = 20;
+    private static final int RAIN_WASH_INTERVAL_TICKS = 20 * 10;
+    private static final int RAIN_WASH_AMOUNT = RAIN_WASH_INTERVAL_TICKS;
     private static final int CHUNKS_PER_INTERVAL = 2;
 
     private static final int TORCH_EMISSION = 1;
@@ -98,6 +101,18 @@ public final class SmogWorldTickHandler {
         }
     }
 
+    private static boolean applyRainWash(ServerLevel world, LevelChunk chunk) {
+        ChunkPos chunkPos = chunk.getPos();
+        BlockPos centerPos = new BlockPos(chunkPos.getMiddleBlockX(), 0, chunkPos.getMiddleBlockZ());
+        BlockPos rainCheckPos = world.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, centerPos);
+
+        if (!world.isRainingAt(rainCheckPos))
+            return false;
+
+        SmogHandler.add(chunk, -RAIN_WASH_AMOUNT);
+        return true;
+    }
+
     public static void register() {
         ServerChunkEvents.CHUNK_LOAD.register((world, chunk) -> {
             if (world.dimension() != Level.OVERWORLD)
@@ -129,6 +144,7 @@ public final class SmogWorldTickHandler {
             int scannedEntities = 0;
             int emittedEntities = 0;
             int torchChunks = 0;
+            int rainWashedChunks = 0;
             int processedChunks = 0;
             int queuedChunksBefore = QUEUED_CHUNKS.size();
 
@@ -148,6 +164,7 @@ public final class SmogWorldTickHandler {
             playerSyncNs = System.nanoTime() - sectionStartNs;
 
             tickCounter++;
+            rainWashTickCounter++;
 
             if (tickCounter % RANDOM_EMISSION_INTERVAL_TICKS == 0) {
                 sectionStartNs = System.nanoTime();
@@ -177,7 +194,21 @@ public final class SmogWorldTickHandler {
 
                     PROCESSING_QUEUE.offer(pos);
                 }
+
                 torchEmissionNs = System.nanoTime() - sectionStartNs;
+            }
+
+            if (rainWashTickCounter >= RAIN_WASH_INTERVAL_TICKS) {
+                rainWashTickCounter = 0;
+                sectionStartNs = System.nanoTime();
+
+                for (ChunkPos pos : QUEUED_CHUNKS) {
+                    LevelChunk chunk = world.getChunkSource().getChunkNow(pos.x, pos.z);
+                    if (chunk != null && applyRainWash(world, chunk))
+                        rainWashedChunks++;
+                }
+
+                torchEmissionNs += System.nanoTime() - sectionStartNs;
             }
 
             if (tickCounter < PROCESS_INTERVAL_TICKS)
@@ -208,7 +239,7 @@ public final class SmogWorldTickHandler {
             long tickElapsedNs = System.nanoTime() - tickStartNs;
             if (tickElapsedNs >= SLOW_WORLD_TICK_LOG_THRESHOLD_NS) {
                 Co2CoreMod.LOGGER.info(
-                        "co2.telemetry event=world_tick_slow duration_ms={} player_sync_ms={} entity_emission_ms={} torch_emission_ms={} queue_processing_ms={} queued_chunks_before={} processed_chunks={} synced_players={} scanned_entities={} emitted_entities={} torch_chunks={}",
+                        "co2.telemetry event=world_tick_slow duration_ms={} player_sync_ms={} entity_emission_ms={} torch_emission_ms={} queue_processing_ms={} queued_chunks_before={} processed_chunks={} synced_players={} scanned_entities={} emitted_entities={} torch_chunks={} rain_washed_chunks={}",
                         tickElapsedNs / 1_000_000.0,
                         playerSyncNs / 1_000_000.0,
                         entityEmissionNs / 1_000_000.0,
@@ -219,7 +250,8 @@ public final class SmogWorldTickHandler {
                         syncedPlayers,
                         scannedEntities,
                         emittedEntities,
-                        torchChunks
+                        torchChunks,
+                        rainWashedChunks
                 );
             } else {
                 if (playerSyncNs >= SLOW_SECTION_LOG_THRESHOLD_NS)
@@ -227,7 +259,7 @@ public final class SmogWorldTickHandler {
                 if (entityEmissionNs >= SLOW_SECTION_LOG_THRESHOLD_NS)
                     Co2CoreMod.LOGGER.info("co2.telemetry event=section_slow section=entity_emission duration_ms={} scanned_entities={} emitted_entities={}", entityEmissionNs / 1_000_000.0, scannedEntities, emittedEntities);
                 if (torchEmissionNs >= SLOW_SECTION_LOG_THRESHOLD_NS)
-                    Co2CoreMod.LOGGER.info("co2.telemetry event=section_slow section=torch_emission duration_ms={} torch_chunks={} queued_chunks={}", torchEmissionNs / 1_000_000.0, torchChunks, queuedChunksBefore);
+                    Co2CoreMod.LOGGER.info("co2.telemetry event=section_slow section=emission_and_rain duration_ms={} torch_chunks={} rain_washed_chunks={} queued_chunks={}", torchEmissionNs / 1_000_000.0, torchChunks, rainWashedChunks, queuedChunksBefore);
                 if (queueProcessingNs >= SLOW_SECTION_LOG_THRESHOLD_NS)
                     Co2CoreMod.LOGGER.info("co2.telemetry event=section_slow section=queue_processing duration_ms={} processed_chunks={} queued_chunks={}", queueProcessingNs / 1_000_000.0, processedChunks, queuedChunksBefore);
             }

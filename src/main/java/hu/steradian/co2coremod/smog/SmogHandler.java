@@ -4,7 +4,6 @@ import hu.steradian.co2coremod.client.ClientSmogData;
 import hu.steradian.co2coremod.components.IChunkSmogData;
 import hu.steradian.co2coremod.components.ModComponents;
 import hu.steradian.co2coremod.network.NetworkHandler;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.HashSet;
@@ -21,7 +20,7 @@ public class SmogHandler {
     }
 
     private static void syncDirtyChunk(LevelChunk chunk, IChunkSmogData data) {
-        if (chunk.getLevel() instanceof ServerLevel)
+        if (chunk.getLevel() instanceof net.minecraft.server.level.ServerLevel)
             NetworkHandler.syncChunkToTracking(chunk, data.getSmogAmount());
     }
 
@@ -52,7 +51,7 @@ public class SmogHandler {
         IChunkSmogData data = ModComponents.CHUNK_DATA.get(chunk);
         int oldAmount = data.getSmogAmount();
 
-        data.setSmogAmount(amount);
+        data.setSmogAmount(Math.max(0, amount));
 
         if (data.getSmogAmount() != oldAmount)
             markDirty(chunk);
@@ -64,7 +63,7 @@ public class SmogHandler {
         IChunkSmogData data = ModComponents.CHUNK_DATA.get(chunk);
         int oldAmount = data.getSmogAmount();
 
-        data.setSmogAmount(oldAmount + amount);
+        data.setSmogAmount(Math.max(0, oldAmount + amount));
 
         if (data.getSmogAmount() != oldAmount)
             markDirty(chunk);

@@ -7,10 +7,11 @@ import hu.steradian.co2coremod.network.ChunkSmogSyncS2CPayload;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
+import net.minecraft.client.gui.components.debug.DebugScreenEntryStatus;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.client.Minecraft;
 
 public class Co2CoreModClient implements ClientModInitializer {
     public static Identifier SMOG_DEBUG_ENTRY;
@@ -23,8 +24,7 @@ public class Co2CoreModClient implements ClientModInitializer {
         );
 
         Minecraft.getInstance().execute(() -> {
-            if (!Minecraft.getInstance().debugEntries.isCurrentlyEnabled(SMOG_DEBUG_ENTRY))
-                Minecraft.getInstance().debugEntries.toggleStatus(SMOG_DEBUG_ENTRY);
+            Minecraft.getInstance().debugEntries.setStatus(SMOG_DEBUG_ENTRY, DebugScreenEntryStatus.IN_OVERLAY);
         });
 
         ClientPlayNetworking.registerGlobalReceiver(
