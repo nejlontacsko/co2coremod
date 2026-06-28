@@ -21,6 +21,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.damagesource.DamageType;
@@ -67,6 +68,7 @@ public final class SmogWorldTickHandler {
     private static final int CO2_DAMAGE_INTERVAL_TICKS = 40;
     private static final int RANDOM_EMISSION_INTERVAL_TICKS = 20;
     private static final int CO2_POISON_DURATION_TICKS = 100;
+    private static final int CO2_MOB_POISON_DURATION_TICKS = CO2_POISON_DURATION_TICKS / 2;
     private static final ResourceKey<DamageType> CO2_POISONING_DAMAGE = ResourceKey.create(
             Registries.DAMAGE_TYPE,
             Co2CoreMod.getId("co2_poisoning")
@@ -203,6 +205,41 @@ public final class SmogWorldTickHandler {
             player.hurt(world.damageSources().source(CO2_POISONING_DAMAGE), 1.0F);
     }
 
+    private static boolean isAquaticEntity(LivingEntity entity) {
+        MobCategory category = entity.getType().getCategory();
+        return category == MobCategory.WATER_CREATURE
+                || category == MobCategory.WATER_AMBIENT
+                || category == MobCategory.UNDERGROUND_WATER_CREATURE
+                || category == MobCategory.AXOLOTLS;
+    }
+
+    private static void applyMobCo2Effects(ServerLevel world, LivingEntity entity) {
+        if (world.dimension() != Level.OVERWORLD)
+            return;
+
+        if (entity instanceof ServerPlayer)
+            return;
+
+        if (isAquaticEntity(entity))
+            return;
+
+        LevelChunk chunk = world.getChunkSource().getChunkNow(entity.chunkPosition().x, entity.chunkPosition().z);
+        if (chunk == null)
+            return;
+
+        int smogAmount = ModComponents.CHUNK_DATA.get(chunk).getSmogAmount();
+        if (smogAmount < CO2_DAMAGE_THRESHOLD)
+            return;
+
+        entity.addEffect(new MobEffectInstance(
+                MobEffects.POISON,
+                CO2_MOB_POISON_DURATION_TICKS,
+                0,
+                true,
+                true
+        ));
+    }
+
     private static void updateAdaptiveQueueBudget(long queueProcessingNs, int processedChunks) {
         int previous = adaptiveChunksPerInterval;
 
@@ -326,6 +363,7 @@ public final class SmogWorldTickHandler {
                             continue;
 
                         scannedEntities++;
+                        applyMobCo2Effects(world, (LivingEntity) entity);
                         if (ThreadLocalRandom.current().nextDouble() < ENTITY_EMISSION_CHANCE_PER_CHECK) {
                             emitAt(world, entity.blockPosition(), ENTITY_EMISSION);
                             emittedEntities++;
