@@ -17,8 +17,11 @@ public final class SmogCalculator {
     private static final int FIRE_EMISSION = 4;
     private static final int SURFACE_SCAN_BELOW = 16;
     private static final int SURFACE_SCAN_ABOVE = 16;
-    private static final int MAGMA_SCAN_MAX_Y = 48;
+    private static final int MAGMA_SCAN_MIN_Y = 50;
+    private static final int SCAN_HORIZONTAL_STEP = 4;
+    private static final int SCAN_VERTICAL_STEP = 2;
     private static final long SLOW_SCAN_LOG_THRESHOLD_NS = 5_000_000L;
+    private static final int SCAN_PHASE_TICKS = 20;
 
     private SmogCalculator() {}
 
@@ -47,22 +50,31 @@ public final class SmogCalculator {
         String scanMode = surfaceScan ? "surface" : "magma";
 
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        int scanPhase = (int)(level.getGameTime() / SCAN_PHASE_TICKS);
+        int offsetX = Math.floorMod(scanPhase + chunk.getPos().x * 31, SCAN_HORIZONTAL_STEP);
+        int offsetZ = Math.floorMod(scanPhase + chunk.getPos().z * 17, SCAN_HORIZONTAL_STEP);
 
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
+        for (int x = offsetX; x < 16; x += SCAN_HORIZONTAL_STEP) {
+            for (int z = offsetZ; z < 16; z += SCAN_HORIZONTAL_STEP) {
                 int surfaceY = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, z);
                 int fromY;
                 int toY;
 
                 if (surfaceScan) {
-                    fromY = Math.max(surfaceY - SURFACE_SCAN_BELOW, minY);
+                    fromY = Math.max(surfaceY - SURFACE_SCAN_BELOW, Math.max(minY, MAGMA_SCAN_MIN_Y));
                     toY = Math.min(surfaceY + SURFACE_SCAN_ABOVE, maxY);
                 } else {
-                    fromY = minY;
-                    toY = Math.min(MAGMA_SCAN_MAX_Y, maxY);
+                    fromY = Math.max(MAGMA_SCAN_MIN_Y, minY);
+                    toY = Math.min(surfaceY + SURFACE_SCAN_ABOVE, maxY);
                 }
 
-                for (int y = fromY; y < toY; y++) {
+                if (fromY >= toY)
+                    continue;
+
+                int offsetY = Math.floorMod(scanPhase + chunk.getPos().x * 13 + chunk.getPos().z * 7 + x + z, SCAN_VERTICAL_STEP);
+                int startY = fromY + offsetY;
+
+                for (int y = startY; y < toY; y += SCAN_VERTICAL_STEP) {
                     scannedBlocks++;
                     pos.set(chunkXStart + x, y, chunkZStart + z);
 
