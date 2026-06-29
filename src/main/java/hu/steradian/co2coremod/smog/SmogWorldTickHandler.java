@@ -78,7 +78,7 @@ public final class SmogWorldTickHandler {
     private static final int TORCH_SCAN_RADIUS_Y = 8;
     private static final int TORCH_SCAN_MIN_Y = 50;
     private static final int RAIN_WASH_CHUNKS_PER_INTERVAL = 16;
-    private static final double TORCH_EMISSION_CHANCE_PER_SAMPLE = 0.25;
+    private static final double TORCH_EMISSION_CHANCE_PER_SAMPLE = 0.125;
     private static final double ENTITY_EMISSION_CHANCE_PER_CHECK = 0.10;
     private static final double ENTITY_EMISSION_SCAN_RADIUS = 128.0D;
 
@@ -211,6 +211,18 @@ public final class SmogWorldTickHandler {
                 || category == MobCategory.WATER_AMBIENT
                 || category == MobCategory.UNDERGROUND_WATER_CREATURE
                 || category == MobCategory.AXOLOTLS;
+    }
+
+    private static boolean shouldLivingEntityEmitCo2(Entity entity) {
+        if (!(entity instanceof LivingEntity))
+            return false;
+
+        if (entity instanceof ServerPlayer player) {
+            GameType gameType = player.gameMode.getGameModeForPlayer();
+            return gameType != GameType.CREATIVE && gameType != GameType.SPECTATOR;
+        }
+
+        return true;
     }
 
     private static void applyMobCo2Effects(ServerLevel world, LivingEntity entity) {
@@ -358,7 +370,7 @@ public final class SmogWorldTickHandler {
                     for (Entity entity : world.getEntities(
                             player,
                             player.getBoundingBox().inflate(ENTITY_EMISSION_SCAN_RADIUS),
-                            entity -> entity instanceof LivingEntity)) {
+                            SmogWorldTickHandler::shouldLivingEntityEmitCo2)) {
                         if (!scannedEntityIds.add(entity.getId()))
                             continue;
 

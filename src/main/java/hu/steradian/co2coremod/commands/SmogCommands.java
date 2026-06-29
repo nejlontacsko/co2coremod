@@ -38,6 +38,13 @@ public class SmogCommands {
                                     ctx.getSource(),
                                     IntegerArgumentType.getInteger(ctx, "amount")
                                 ))
+                                .then(Commands.argument("radius", IntegerArgumentType.integer(0))
+                                    .executes(ctx -> modifyRadius(
+                                        ctx.getSource(),
+                                        IntegerArgumentType.getInteger(ctx, "amount"),
+                                        IntegerArgumentType.getInteger(ctx, "radius")
+                                    ))
+                                )
                             ))
 
                         .then(Commands.literal("dec")
@@ -46,6 +53,13 @@ public class SmogCommands {
                                     ctx.getSource(),
                                     -IntegerArgumentType.getInteger(ctx, "amount")
                                 ))
+                                .then(Commands.argument("radius", IntegerArgumentType.integer(0))
+                                    .executes(ctx -> modifyRadius(
+                                        ctx.getSource(),
+                                        -IntegerArgumentType.getInteger(ctx, "amount"),
+                                        IntegerArgumentType.getInteger(ctx, "radius")
+                                    ))
+                                )
                             ))
 
                         .then(Commands.literal("set")
@@ -60,6 +74,13 @@ public class SmogCommands {
                                     );
                                     return 1;
                                 })
+                                .then(Commands.argument("radius", IntegerArgumentType.integer(0))
+                                    .executes(ctx -> setRadius(
+                                        ctx.getSource(),
+                                        IntegerArgumentType.getInteger(ctx, "amount"),
+                                        IntegerArgumentType.getInteger(ctx, "radius")
+                                    ))
+                                )
                             ))
         ));
     }
@@ -72,6 +93,53 @@ public class SmogCommands {
             true
         );
         return 1;
+    }
+
+    private static int modifyRadius(CommandSourceStack source, int amount, int radius) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        int centerChunkX = player.blockPosition().getX() >> 4;
+        int centerChunkZ = player.blockPosition().getZ() >> 4;
+        int changedChunks = 0;
+
+        for (int chunkX = centerChunkX - radius; chunkX <= centerChunkX + radius; chunkX++) {
+            for (int chunkZ = centerChunkZ - radius; chunkZ <= centerChunkZ + radius; chunkZ++) {
+                LevelChunk chunk = player.level().getChunk(chunkX, chunkZ);
+                SmogHandler.add(chunk, amount);
+                changedChunks++;
+            }
+        }
+
+        final int finalChangedChunks = changedChunks;
+        source.sendSuccess(
+            () -> Component.literal((amount > 0 ? "Increased" : "Decreased")
+                + " CO₂ by " + Math.abs(amount)
+                + " in " + finalChangedChunks + " chunks, radius " + radius),
+            true
+        );
+        return changedChunks;
+    }
+
+    private static int setRadius(CommandSourceStack source, int amount, int radius) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        int centerChunkX = player.blockPosition().getX() >> 4;
+        int centerChunkZ = player.blockPosition().getZ() >> 4;
+        int changedChunks = 0;
+
+        for (int chunkX = centerChunkX - radius; chunkX <= centerChunkX + radius; chunkX++) {
+            for (int chunkZ = centerChunkZ - radius; chunkZ <= centerChunkZ + radius; chunkZ++) {
+                LevelChunk chunk = player.level().getChunk(chunkX, chunkZ);
+                SmogHandler.setChunkAmount(chunk, amount);
+                changedChunks++;
+            }
+        }
+
+        final int finalChangedChunks = changedChunks;
+        source.sendSuccess(
+            () -> Component.literal("Set CO₂ to " + amount
+                + " in " + finalChangedChunks + " chunks, radius " + radius),
+            true
+        );
+        return changedChunks;
     }
 
     private static LevelChunk commandChunk(CommandSourceStack source) throws CommandSyntaxException {
