@@ -2,7 +2,7 @@ package hu.steradian.co2coremod.client.debug;
 
 import hu.steradian.co2coremod.Co2CoreMod;
 import hu.steradian.co2coremod.client.ClientSmogData;
-import hu.steradian.co2coremod.components.ModComponents;
+import hu.steradian.co2coremod.smog.SmogHandler;
 import hu.steradian.co2coremod.smog.SmogLevel;
 
 import net.minecraft.client.Minecraft;
@@ -40,6 +40,18 @@ public class SmogDebugEntry implements DebugScreenEntry {
             + " | Smog: " + playerSmog + " ppm"
             + " | Level: " + SmogLevel.of(playerSmog)
         );
+
+        if (serverChunk != null) {
+            int serverSmog = SmogHandler.getChunkAmount(serverChunk);
+            boolean restricted = SmogHandler.isRestricted(serverChunk);
+
+            displayer.addToGroup(Co2CoreMod.getId("smog"),
+                "Server chunk: " + serverChunk.getPos()
+                    + " | Smog: " + serverSmog + " ppm"
+                    + " | Restricted: " + restricted
+                    + " | Custom restricted chunks: " + SmogHandler.getRestrictedChunkCount()
+            );
+        }
 
         HitResult hitResult = mc.hitResult;
         if (hitResult instanceof BlockHitResult blockHitResult) {

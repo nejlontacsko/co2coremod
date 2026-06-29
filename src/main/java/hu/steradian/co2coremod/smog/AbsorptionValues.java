@@ -35,6 +35,7 @@ public class AbsorptionValues {
             Blocks.FERN,
             Blocks.LARGE_FERN,
             Blocks.VINE,
+            Blocks.PALE_HANGING_MOSS,
             Blocks.SUGAR_CANE,
             Blocks.WHEAT,
             Blocks.CARROTS,
@@ -64,20 +65,24 @@ public class AbsorptionValues {
             Blocks.BIRCH_SAPLING,
             Blocks.JUNGLE_SAPLING,
             Blocks.ACACIA_SAPLING,
-            Blocks.DARK_OAK_SAPLING
+            Blocks.DARK_OAK_SAPLING,
+            Blocks.PALE_OAK_SAPLING
         );
 
         // Strong static absorbers. These do not mature into other blocks on their own.
+        // These are meant to be used for bordering areas.
         putAll(STRONG_STATIC_ABSORPTION,
             Blocks.MOSS_BLOCK,
-            Blocks.MOSS_CARPET
+            Blocks.MOSS_CARPET,
+            Blocks.PALE_MOSS_BLOCK,
+            Blocks.PALE_MOSS_CARPET,
+            Blocks.LILY_PAD
         );
     }
 
     private static void putAll(int absorption, Block... blocks) {
-        for (Block block : blocks) {
+        for (Block block : blocks)
             MAP.put(block, absorption);
-        }
     }
 
     public static int get(Block block) {
